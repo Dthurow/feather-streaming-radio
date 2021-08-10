@@ -2,11 +2,11 @@
 
 // include SPI, MP3 and SD libraries
 #include <SPI.h>
-#include <Adafruit_VS1053.h>
 #include <ESP8266WiFi.h>
+#include "SoundOutput.h"
 
-char* ssid     = "wifi";
-const char* password = "password";
+char* ssid     = "CenturyLink8606";
+const char* password = "ed77bt8mdefdfa";
 
 //  http://ice6.somafm.com/groovesalad-128-mp3
 const char *host = "ice6.somafm.com";
@@ -14,18 +14,12 @@ const char *path = "/groovesalad-128-mp3";
 //const char *path = "/doomed-128-mp3";
 int httpPort = 80;
 
-// These are the pins used
-#define VS1053_RESET   -1     // VS1053 reset pin (not used!)
-#define VS1053_CS      16     // VS1053 chip select pin (output)
-#define VS1053_DCS     15     // VS1053 Data/command select pin (output)
-#define VS1053_DREQ     0     // VS1053 Data request, ideally an Interrupt pin
 
 #define VOLUME_KNOB    A0
 #define ON_OFF_SWITCH  4
 
 int lastvol = 30;
-
-Adafruit_VS1053 musicPlayer =  Adafruit_VS1053(VS1053_RESET, VS1053_CS, VS1053_DCS, VS1053_DREQ);
+SoundOutputInterface *musicPlayer = new SoundOutput();
 
 // Use WiFiClient class to create HTTP/TCP connection
 WiFiClient client;
@@ -36,16 +30,16 @@ void setup() {
   Serial.println("\n\nAdafruit VS1053 Feather WiFi Radio");
 
   /************************* INITIALIZE MP3 WING */
-  if (! musicPlayer.begin()) { // initialise the music player
+  if (! musicPlayer->begin()) { // initialise the music player
      Serial.println(F("Couldn't find VS1053, do you have the right pins defined?"));
      while (1) delay(10);
   }
 
   Serial.println(F("VS1053 found"));
-  musicPlayer.sineTest(0x44, 500);    // Make a tone to indicate VS1053 is working
+  musicPlayer->sineTest(0x44, 500);    // Make a tone to indicate VS1053 is working
   
   // Set volume for left, right channels. lower numbers == louder volume!
-  musicPlayer.setVolume(lastvol, lastvol);
+  musicPlayer->setVolume(lastvol, lastvol);
 
   // don't use an IRQ, we'll hand-feed
 
@@ -124,7 +118,7 @@ void loop() {
   loopcounter++;
 
   // wait till mp3 wants more data
-  if (musicPlayer.readyForData()) {
+  if (musicPlayer->readyForData()) {
     Serial.print("ready ");
     
     //wants more data! check we have something available from the stream
@@ -133,7 +127,7 @@ void loop() {
       // yea! read up to 32 bytes
       uint8_t bytesread = client.read(mp3buff, 32);
       // push to mp3
-      musicPlayer.playData(mp3buff, bytesread);
+      musicPlayer->playData(mp3buff, bytesread);
 
       Serial.println("stream!");
     }
@@ -147,7 +141,7 @@ void loop() {
       if (abs(vol - lastvol) > 3) {
         Serial.println(vol);
         lastvol = vol;
-        musicPlayer.setVolume(lastvol, lastvol);
+        musicPlayer->setVolume(lastvol, lastvol);
       }
     }
   }
