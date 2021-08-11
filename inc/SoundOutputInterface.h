@@ -1,15 +1,16 @@
 #ifndef SoundOutputInterface_h
 #define SoundOutputInterface_h
-#include <Arduino.h>
+#include <stdint.h>
+typedef bool boolean;
 
 class SoundOutputInterface
 {
 public:
   /*!
    * @brief Initialize communication and (hard) reset the chip.
-   * @return Returns true if a VS1053 is found
+   * @return Returns true everything is working
    */
-  virtual uint8_t begin(void);
+  virtual uint8_t begin(void) = 0;
   /*!
    * @brief Generate a sine-wave test signal
    * @param n Defines the sine test to use
