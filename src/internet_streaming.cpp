@@ -4,6 +4,7 @@
 #include <ESP8266WiFi.h>
 #include "SoundOutput.h"
 #include "internetRadioStream.h"
+#include "SDRadioStream.h"
 
 char *ssid = "CenturyLink8606";
 const char *password = "ed77bt8mdefdfa";
@@ -17,8 +18,8 @@ int httpPort = 80;
 #define ON_OFF_SWITCH 4
 
 int lastvol = 30;
-RadioStreamInterface *radioStream = new InternetRadioStream(host, path, new SoundOutput());
-
+//RadioStreamInterface *radioStream = new InternetRadioStream(host, path, new SoundOutput());
+RadioStreamInterface *radioStream = new SDRadioStream(new SoundOutput());
 
 void setup()
 {

@@ -56,7 +56,7 @@ uint8_t InternetRadioStream::begin(void)
     client.print(String("GET ") + path + " HTTP/1.1\r\n" +
                  "Host: " + host + "\r\n" +
                  "Connection: close\r\n\r\n");
-    return 0;
+    return true;
 }
 
 uint8_t InternetRadioStream::end(void)

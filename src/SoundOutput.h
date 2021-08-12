@@ -8,6 +8,7 @@
 #define VS1053_DCS 15   // VS1053 Data/command select pin (output)
 #define VS1053_DREQ 0   // VS1053 Data request, ideally an Interrupt pin
 
+
 class SoundOutput : public SoundOutputInterface
 {
 public:

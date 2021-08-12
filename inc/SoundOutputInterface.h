@@ -2,6 +2,7 @@
 #define SoundOutputInterface_h
 #include <stdint.h>
 typedef bool boolean;
+#define MP3_BUFFER_LENGTH 32
 
 class SoundOutputInterface
 {
