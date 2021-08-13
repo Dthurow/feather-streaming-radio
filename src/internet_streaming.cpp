@@ -15,7 +15,7 @@ char *path = "/groovesalad-128-mp3";
 int httpPort = 80;
 
 #define VOLUME_KNOB A0
-#define ON_OFF_SWITCH 4
+#define CYCLE_THRU_STREAMS_BUTTON 4
 
 int lastvol = 30;
 RadioStreamInterface * radioStream1 = new InternetRadioStream(host, path, new SoundOutput());
@@ -36,20 +36,20 @@ void setup()
   Serial.println("setting on off switch");
   //set on-off switch pin mode
   // don't use an IRQ, we'll hand-feed
-  pinMode(ON_OFF_SWITCH, INPUT_PULLUP);
+  pinMode(CYCLE_THRU_STREAMS_BUTTON, INPUT_PULLUP);
 }
 
 
 int loopcounter = 0;
 int buttonHasLifted = 1;
-int running = 1;
+int running = 0;
 
 //return 1 if the button has been pressed, 0 otherwise
 //function limits so it only returns 1 once per button press
 //so polling works
 int buttonPressed()
 {
-  int rawVal = digitalRead(ON_OFF_SWITCH);
+  int rawVal = digitalRead(CYCLE_THRU_STREAMS_BUTTON);
 
   if (rawVal)
   {
@@ -73,13 +73,14 @@ void loop()
 {
   if (buttonPressed())
   {
-    //toggle running variable
-    running = !running;
-  }
-  if (!running)
-  {
-    yield();
-    return;
+    //cycle through streams with button press
+    if (running == 1){
+      running = 0;
+    } 
+    else{
+      running = 1;
+    }
+    selector->ChangeStreamTo(running);
   }
 
   loopcounter++;
