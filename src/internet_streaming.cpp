@@ -5,6 +5,7 @@
 #include "internetRadioStream.h"
 #include "SDRadioStream.h"
 #include "StreamSelector.h"
+#define DEFAULTVOL 30
 
 char *ssid = "";
 const char *password = "";
@@ -17,9 +18,12 @@ int httpPort = 80;
 #define VOLUME_KNOB A0
 #define CYCLE_THRU_STREAMS_BUTTON 4
 
-int lastvol = 30;
-RadioStreamInterface * radioStream1 = new InternetRadioStream(host, path, new SoundOutput());
-RadioStreamInterface * radioStream2 = new SDRadioStream(new SoundOutput());
+int lastvol = DEFAULTVOL;
+
+int StreamLenth = 2;
+SoundOutput sound = SoundOutput();
+RadioStreamInterface *radioStream1 = new InternetRadioStream(host, path, &sound);
+RadioStreamInterface *radioStream2 = new SDRadioStream(&sound);
 StreamSelector *selector;
 
 void setup()
@@ -38,7 +42,6 @@ void setup()
   // don't use an IRQ, we'll hand-feed
   pinMode(CYCLE_THRU_STREAMS_BUTTON, INPUT_PULLUP);
 }
-
 
 int loopcounter = 0;
 int buttonHasLifted = 1;
@@ -74,13 +77,10 @@ void loop()
   if (buttonPressed())
   {
     //cycle through streams with button press
-    if (running == 1){
-      running = 0;
-    } 
-    else{
-      running = 1;
-    }
+
+    running = (running + 1) % StreamLenth;
     selector->ChangeStreamTo(running);
+    selector->SetVolume(lastvol, lastvol);
   }
 
   loopcounter++;

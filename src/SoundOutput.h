@@ -23,4 +23,5 @@ public:
 
 private:
   Adafruit_VS1053 musicPlayer = Adafruit_VS1053(VS1053_RESET, VS1053_CS, VS1053_DCS, VS1053_DREQ);
+  int initialized = 0;
 };
