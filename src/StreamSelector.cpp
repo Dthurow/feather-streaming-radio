@@ -7,10 +7,10 @@ StreamSelector::StreamSelector(int initialSelection, int numberOfStreams)
     StreamIndex = initialSelection;
     StreamOptionsLength = numberOfStreams;
     StreamOptions = new RadioStreamInterface *[numberOfStreams];
-
 }
 
-void StreamSelector::ChangeStreamTo(int index){
+void StreamSelector::ChangeStreamTo(int index)
+{
     StreamIndex = index;
     updateToNewStream();
 }
@@ -21,7 +21,8 @@ void StreamSelector::ChangeStreamTo(int index){
 void StreamSelector::AddStream(RadioStreamInterface *strm, int index)
 {
     StreamOptions[index] = strm;
-    if (index == StreamIndex){
+    if (index == StreamIndex)
+    {
         Serial.println("updating to new stream");
         updateToNewStream();
     }
@@ -34,11 +35,11 @@ void StreamSelector::CheckSelection(void)
 {
     //check knob or whatever
     bool changed = false;
-    if (changed){
+    if (changed)
+    {
         //TODO update index to new value
         updateToNewStream();
     }
-
 }
 
 /*!
@@ -47,32 +48,36 @@ void StreamSelector::CheckSelection(void)
 void StreamSelector::PlayCurrentStream(void)
 {
     //Serial.println("in play current stream");
-    if (CurrentStream){
+    if (CurrentStream)
+    {
         //Serial.println("going to call playRadio");
-    CurrentStream->playRadio();
-
+        CurrentStream->playRadio();
     }
-    else{
+    else
+    {
         Serial.println("It's null!");
     }
 }
 
 uint8_t StreamSelector::updateToNewStream(void)
 {
-    //CurrentStream->end();
+    if (CurrentStream)
+    {
+        CurrentStream->end();
+    }
     Serial.print("setting stream to ");
     Serial.println(StreamIndex);
     CurrentStream = StreamOptions[StreamIndex];
-    if (!CurrentStream){
+    if (!CurrentStream)
+    {
         Serial.println("It's still a nullptr!");
     }
     Serial.println("calling begin");
     return CurrentStream->begin();
-    
-    
 }
 
-void StreamSelector::SetVolume(uint8_t left, uint8_t right){
+void StreamSelector::SetVolume(uint8_t left, uint8_t right)
+{
 
     CurrentStream->setVolume(left, right);
 }

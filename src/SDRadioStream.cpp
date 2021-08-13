@@ -18,11 +18,14 @@ uint8_t SDRadioStream::begin(void)
             delay(10);
     }
 
-    Serial.println(F("sound output initialized"));
-    musicPlayer->sineTest(0x44, 500); // Make a tone to indicate it's working
+    if (initialized == 0)
+    {
+        Serial.println(F("sound output initialized"));
+        musicPlayer->sineTest(0x44, 500); // Make a tone to indicate it's working
 
-    // Set volume for left, right channels. lower numbers == louder volume!
-    musicPlayer->setVolume(DEFAULTVOL, DEFAULTVOL);
+        // Set volume for left, right channels. lower numbers == louder volume!
+        musicPlayer->setVolume(DEFAULTVOL, DEFAULTVOL);
+    }
 
     if (!SD.begin(CARDCS))
     {
@@ -32,29 +35,32 @@ uint8_t SDRadioStream::begin(void)
     }
     Serial.println("SD OK!");
 
-    findTrackList(SD.open("/"));
-
-    for (int i = 0; i < trackListLength; i++)
+    if (initialized == 0)
     {
-        Serial.println(trackList[i]);
-    }
+        findTrackList(SD.open("/"));
 
-    if (trackList[0] != "")
-    {
-        Serial.print("Now playing: ");
-        Serial.println(trackList[trackListIndex]);
-        //found at least one track, open it up
-        currentTrack = SD.open(trackList[0]);
-
-        //if statement and function calls pulled from Adafruit_VS1053.cpp
-        // We know we have a valid file. Check if .mp3
-        // If so, check for ID3 tag and jump it if present.
-        if (isMP3File(trackList[0].c_str()))
+        for (int i = 0; i < trackListLength; i++)
         {
-            currentTrack.seek(mp3_ID3Jumper(currentTrack));
+            Serial.println(trackList[i]);
+        }
+
+        if (trackList[0] != "")
+        {
+            Serial.print("Now playing: ");
+            Serial.println(trackList[trackListIndex]);
+            //found at least one track, open it up
+            currentTrack = SD.open(trackList[0]);
+
+            //if statement and function calls pulled from Adafruit_VS1053.cpp
+            // We know we have a valid file. Check if .mp3
+            // If so, check for ID3 tag and jump it if present.
+            if (isMP3File(trackList[0].c_str()))
+            {
+                currentTrack.seek(mp3_ID3Jumper(currentTrack));
+            }
         }
     }
-
+    initialized = 1;
     return true;
 }
 
@@ -73,7 +79,7 @@ void SDRadioStream::playRadio(void)
         {
 
             currentTrack.close();
-            trackListIndex = (trackListIndex + 1) % trackListLength;// loop thru the tracks
+            trackListIndex = (trackListIndex + 1) % trackListLength; // loop thru the tracks
 
             Serial.print("Now playing: ");
             Serial.println(trackList[trackListIndex]);

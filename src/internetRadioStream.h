@@ -29,6 +29,8 @@ public:
     void setVolume(uint8_t left, uint8_t right);
 
 private:
+    uint8_t setupWifi();
+    int initialized = 0;
     SoundOutputInterface *musicPlayer;
     char *ssid = "";
     char *password = "";

@@ -29,6 +29,7 @@ public:
     void setVolume(uint8_t left, uint8_t right);
 
 private:
+    int initialized = 0;
     void findTrackList(File dir);
     boolean isMP3File(const char *fileName);
     unsigned long mp3_ID3Jumper(File mp3);
