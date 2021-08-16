@@ -8,17 +8,10 @@ StreamSelector::StreamSelector(int initialSelection, int numberOfStreams)
     StreamOptionsLength = numberOfStreams < MAX_NUMBER_OF_STREAMS ? numberOfStreams : MAX_NUMBER_OF_STREAMS;
 }
 
-void StreamSelector::ChangeStreamTo(int index)
+uint8_t StreamSelector::ChangeStreamTo(int index)
 {
-    if (index < StreamOptionsLength)
-    {
-        StreamIndex = index;
-    }
-    else
-    {
-        StreamIndex = index % StreamOptionsLength;
-    }
-    updateToNewStream();
+    StreamIndex = index % StreamOptionsLength;
+    return updateToNewStream();
 }
 
 /*!
@@ -38,6 +31,7 @@ void StreamSelector::AddStream(RadioStreamInterface *strm, int index)
         }
         else
         {
+            StreamOptionsLength = MAX_NUMBER_OF_STREAMS;
             index = index % StreamOptionsLength;
         }
     }
@@ -91,7 +85,7 @@ uint8_t StreamSelector::updateToNewStream(void)
     if (!CurrentStream)
     {
         Serial.println("It's still a nullptr!");
-        //TODO deal with this error issue
+        return false;
     }
     Serial.println("calling begin");
     return CurrentStream->begin();

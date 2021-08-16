@@ -14,8 +14,7 @@ uint8_t InternetRadioStream::begin(void)
     if (!musicPlayer->begin())
     { // initialise the music player
         Serial.println(F("Couldn't find the sound output, do you have the right pins defined?"));
-        while (1)
-            delay(10);
+        return false;
     }
 
     if (initialized == 0)
@@ -27,8 +26,9 @@ uint8_t InternetRadioStream::begin(void)
 
     if (!setupWifi())
     {
+        Serial.println("Could not connect to wifi");
         //something went wrong!
-        return -1;
+        return false;
     }
 
     initialized = 1;
@@ -39,7 +39,7 @@ uint8_t InternetRadioStream::end(void)
 {
     Serial.println("Called end");
     client.stop();
-    return 0;
+    return true;
 }
 
 void InternetRadioStream::playRadio(void)

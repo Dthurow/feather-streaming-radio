@@ -12,7 +12,11 @@ public:
     */
     void AddStream(RadioStreamInterface *strm, int index);
 
-    void ChangeStreamTo(int index);
+    /*!
+    * @brief Updates to the stream at the given index
+    * @return true if update was successful
+    */
+    uint8_t ChangeStreamTo(int index);
 
     /*!
     * @brief check if we need to update stream selection

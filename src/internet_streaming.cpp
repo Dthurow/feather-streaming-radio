@@ -21,12 +21,12 @@ int httpPort = 80;
 
 int lastvol = DEFAULTVOL;
 
-int StreamLenth = 3;
+int StreamLenth = 4;
 SoundOutput sound = SoundOutput();
 RadioStreamInterface *radioStream1 = new InternetRadioStream(host, path, &sound);
-RadioStreamInterface *radioStream2 = new SDRadioStream(&sound);
+RadioStreamInterface *radioStream2 = new SDRadioStream(&sound, "/myradio");
 RadioStreamInterface *radioStream3 = new InternetRadioStream("ice2.somafm.com", "/seventies-128-mp3", &sound);
-
+RadioStreamInterface *radioStream4 = new SDRadioStream(&sound, "/anotherradio");
 
 StreamSelector *selector;
 
@@ -41,6 +41,7 @@ void setup()
   selector->AddStream(radioStream1, 0);
   selector->AddStream(radioStream2, 1);
   selector->AddStream(radioStream3, 2);
+  selector->AddStream(radioStream4, 3);
 
   Serial.println("setting on off switch");
   //set on-off switch pin mode
@@ -83,8 +84,20 @@ void loop()
   {
     //cycle through streams with button press
 
-    running = (running + 1) % StreamLenth;
-    selector->ChangeStreamTo(running);
+    bool successfulUpdate = false;
+    //try to initialize the new stream
+    //if it fails, just start working through all streams
+    //until one succeeds
+    do
+    {
+
+      running = (running + 1) % StreamLenth;
+
+      Serial.print("Trying to initialize stream ");
+      Serial.println(running);
+      successfulUpdate = selector->ChangeStreamTo(running);
+    } while (!successfulUpdate);
+
     selector->SetVolume(lastvol, lastvol);
   }
 
