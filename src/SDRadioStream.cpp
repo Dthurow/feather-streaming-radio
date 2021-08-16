@@ -4,9 +4,10 @@
 #define DIMENSION_OF_ARRAY(a) (sizeof(a) / sizeof(a[0]))
 #include <stdint.h>
 
-SDRadioStream::SDRadioStream(SoundOutputInterface *sound)
+SDRadioStream::SDRadioStream(SoundOutputInterface *sound, char *folderName)
 {
     musicPlayer = sound;
+    streamFolder = folderName;
 }
 
 uint8_t SDRadioStream::begin(void)
@@ -20,7 +21,7 @@ uint8_t SDRadioStream::begin(void)
 
     if (initialized == 0)
     {
-        
+
         // Set volume for left, right channels. lower numbers == louder volume!
         musicPlayer->setVolume(DEFAULTVOL, DEFAULTVOL);
     }
@@ -28,14 +29,13 @@ uint8_t SDRadioStream::begin(void)
     if (!SD.begin(CARDCS))
     {
         Serial.println(F("SD failed, or not present"));
-        while (1)
-            ; // don't do anything more
+       return false;
     }
     Serial.println("SD OK!");
 
     if (initialized == 0)
     {
-        findTrackList(SD.open("/"));
+        findTrackList(SD.open(streamFolder));
 
         for (int i = 0; i < trackListLength; i++)
         {
@@ -44,10 +44,11 @@ uint8_t SDRadioStream::begin(void)
 
         if (trackList[0] != "")
         {
-            Serial.print("Now playing: ");
-            Serial.println(trackList[trackListIndex]);
+
             //found at least one track, open it up
             currentTrack = SD.open(trackList[0]);
+            Serial.print("Now playing: ");
+            Serial.println(trackList[trackListIndex]);
 
             //if statement and function calls pulled from Adafruit_VS1053.cpp
             // We know we have a valid file. Check if .mp3
@@ -56,6 +57,9 @@ uint8_t SDRadioStream::begin(void)
             {
                 currentTrack.seek(mp3_ID3Jumper(currentTrack));
             }
+        }
+        else{
+            //TODO deal with this error
         }
     }
     initialized = 1;
@@ -79,9 +83,10 @@ void SDRadioStream::playRadio(void)
             currentTrack.close();
             trackListIndex = (trackListIndex + 1) % trackListLength; // loop thru the tracks
 
+            currentTrack = SD.open(trackList[trackListIndex]);
+
             Serial.print("Now playing: ");
             Serial.println(trackList[trackListIndex]);
-            currentTrack = SD.open(trackList[trackListIndex]);
 
             //if statement and function calls pulled from Adafruit_VS1053.cpp
             // We know we have a valid file. Check if .mp3
@@ -109,7 +114,6 @@ void SDRadioStream::findTrackList(File dir)
     int songCount = 0;
     while (true)
     {
-
         File entry = dir.openNextFile();
         if (!entry)
         {
@@ -119,25 +123,20 @@ void SDRadioStream::findTrackList(File dir)
         }
         if (!entry.isDirectory())
         {
+            trackList[songCount] = entry.fullName();
             songCount++;
+            if (songCount == MAX_TRACKLIST_LENGTH)
+            {
+                //can't add any more songs w/o an overflow
+                entry.close();
+                break;
+            }
         }
         entry.close();
     }
 
-    //now that we've counted the songs, get their names
-    trackList = new String[songCount];
     trackListLength = songCount;
-    int i = 0;
-    while (i < songCount)
-    {
-        File entry = dir.openNextFile();
-        if (!entry.isDirectory())
-        {
-            trackList[i] = entry.name();
-            entry.close();
-            i++;
-        }
-    }
+   
 }
 
 //copied from Adafruit_VS1053.cpp

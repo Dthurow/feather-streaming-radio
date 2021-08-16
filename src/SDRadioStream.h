@@ -1,11 +1,12 @@
 #include "../inc/RadioStreamInterface.h"
 #include "../inc/SoundOutputInterface.h"
 #include <SD.h>
+#define MAX_TRACKLIST_LENGTH 50
 
 class SDRadioStream : public RadioStreamInterface
 {
 public:
-    SDRadioStream(SoundOutputInterface *sound);
+    SDRadioStream(SoundOutputInterface *sound, char * folderName = "/");
     /*!
     * @brief opens/starts anything needed for radio stream
     * @return Returns true everything is working
@@ -38,7 +39,8 @@ private:
     // our little buffer of mp3 data
     uint8_t mp3buff[MP3_BUFFER_LENGTH]; // vs1053 likes 32 bytes at a time
     File currentTrack;             //!< File that is currently playing
-    String *trackList;
+    String trackList[MAX_TRACKLIST_LENGTH];
     int trackListIndex = 0;
     int trackListLength;
+    char * streamFolder;
 };
