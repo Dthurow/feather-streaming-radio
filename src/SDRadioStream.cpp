@@ -15,8 +15,7 @@ uint8_t SDRadioStream::begin(void)
     if (!musicPlayer->begin())
     { // initialise the music player
         Serial.println(F("Couldn't find the sound output, do you have the right pins defined?"));
-        while (1)
-            delay(10);
+        return false;
     }
 
     if (initialized == 0)
@@ -35,6 +34,7 @@ uint8_t SDRadioStream::begin(void)
 
     if (initialized == 0)
     {
+        Serial.println("Finding tracks");
         findTrackList(SD.open(streamFolder));
 
         for (int i = 0; i < trackListLength; i++)
@@ -59,7 +59,8 @@ uint8_t SDRadioStream::begin(void)
             }
         }
         else{
-            //TODO deal with this error
+            Serial.println("no tracks found!");
+            return false;
         }
     }
     initialized = 1;

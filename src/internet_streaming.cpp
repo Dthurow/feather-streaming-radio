@@ -21,7 +21,7 @@ int httpPort = 80;
 
 int lastvol = DEFAULTVOL;
 
-int StreamLenth = 4;
+int StreamLength = 4;
 SoundOutput sound = SoundOutput();
 RadioStreamInterface *radioStream1 = new InternetRadioStream(host, path, &sound);
 RadioStreamInterface *radioStream2 = new SDRadioStream(&sound, "/myradio");
@@ -36,7 +36,7 @@ void setup()
 
   Serial.println("\n\nAdafruit VS1053 Feather WiFi Radio");
 
-  selector = new StreamSelector(0, 3);
+  selector = new StreamSelector(0, StreamLength);
 
   selector->AddStream(radioStream1, 0);
   selector->AddStream(radioStream2, 1);
@@ -91,7 +91,7 @@ void loop()
     do
     {
 
-      running = (running + 1) % StreamLenth;
+      running = (running + 1) % StreamLength;
 
       Serial.print("Trying to initialize stream ");
       Serial.println(running);
