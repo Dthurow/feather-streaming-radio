@@ -1,4 +1,5 @@
 #include "../inc/RadioStreamInterface.h"
+#define MAX_NUMBER_OF_STREAMS 15
 
 class StreamSelector
 {
@@ -27,7 +28,7 @@ public:
 
 private:
     uint8_t updateToNewStream();
-    RadioStreamInterface **StreamOptions;
+    RadioStreamInterface *StreamOptions [MAX_NUMBER_OF_STREAMS];
     RadioStreamInterface *CurrentStream = nullptr;
     int StreamIndex;
     int StreamOptionsLength;

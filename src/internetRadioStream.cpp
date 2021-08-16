@@ -20,9 +20,7 @@ uint8_t InternetRadioStream::begin(void)
 
     if (initialized == 0)
     {
-        Serial.println(F("sound output initialized"));
-        musicPlayer->sineTest(0x44, 500); // Make a tone to indicate it's working
-
+        
         // Set volume for left, right channels. lower numbers == louder volume!
         musicPlayer->setVolume(DEFAULTVOL, DEFAULTVOL);
     }
@@ -54,11 +52,11 @@ void InternetRadioStream::playRadio(void)
         {
             // yea! read up to 32 bytes
             uint8_t bytesread = client.read(mp3buff, 32);
-            if (bytesread < 32)
-            {
-                Serial.print("read byes: ");
-                Serial.println(bytesread);
-            }
+            // if (bytesread < 32)
+            // {
+            //     Serial.print("read byes: ");
+            //     Serial.println(bytesread);
+            // }
 
             // push to mp3
             musicPlayer->playData(mp3buff, bytesread);

@@ -5,13 +5,19 @@
 StreamSelector::StreamSelector(int initialSelection, int numberOfStreams)
 {
     StreamIndex = initialSelection;
-    StreamOptionsLength = numberOfStreams;
-    StreamOptions = new RadioStreamInterface *[numberOfStreams];
+    StreamOptionsLength = numberOfStreams < MAX_NUMBER_OF_STREAMS ? numberOfStreams : MAX_NUMBER_OF_STREAMS;
 }
 
 void StreamSelector::ChangeStreamTo(int index)
 {
-    StreamIndex = index;
+    if (index < StreamOptionsLength)
+    {
+        StreamIndex = index;
+    }
+    else
+    {
+        StreamIndex = index % StreamOptionsLength;
+    }
     updateToNewStream();
 }
 
@@ -20,6 +26,21 @@ void StreamSelector::ChangeStreamTo(int index)
     */
 void StreamSelector::AddStream(RadioStreamInterface *strm, int index)
 {
+    if (index >= StreamOptionsLength)
+    {
+        //if the index is outside of the originally planned bounds
+        //either update the bounds (if under the max number of streams)
+        //or loop and overwrite the older streams
+        if (StreamOptionsLength < MAX_NUMBER_OF_STREAMS)
+        {
+            index = StreamOptionsLength;
+            StreamOptionsLength++;
+        }
+        else
+        {
+            index = index % StreamOptionsLength;
+        }
+    }
     StreamOptions[index] = strm;
     if (index == StreamIndex)
     {
@@ -47,10 +68,8 @@ void StreamSelector::CheckSelection(void)
     */
 void StreamSelector::PlayCurrentStream(void)
 {
-    //Serial.println("in play current stream");
     if (CurrentStream)
     {
-        //Serial.println("going to call playRadio");
         CurrentStream->playRadio();
     }
     else
@@ -67,10 +86,12 @@ uint8_t StreamSelector::updateToNewStream(void)
     }
     Serial.print("setting stream to ");
     Serial.println(StreamIndex);
+
     CurrentStream = StreamOptions[StreamIndex];
     if (!CurrentStream)
     {
         Serial.println("It's still a nullptr!");
+        //TODO deal with this error issue
     }
     Serial.println("calling begin");
     return CurrentStream->begin();

@@ -10,7 +10,8 @@
 char *ssid = "";
 const char *password = "";
 
-//  http://ice6.somafm.com/groovesalad-128-mp3
+// http://ice6.somafm.com/groovesalad-128-mp3
+//http://ice2.somafm.com/seventies-128-mp3
 char *host = "ice6.somafm.com";
 char *path = "/groovesalad-128-mp3";
 int httpPort = 80;
@@ -20,10 +21,13 @@ int httpPort = 80;
 
 int lastvol = DEFAULTVOL;
 
-int StreamLenth = 2;
+int StreamLenth = 3;
 SoundOutput sound = SoundOutput();
 RadioStreamInterface *radioStream1 = new InternetRadioStream(host, path, &sound);
 RadioStreamInterface *radioStream2 = new SDRadioStream(&sound);
+RadioStreamInterface *radioStream3 = new InternetRadioStream("ice2.somafm.com", "/seventies-128-mp3", &sound);
+
+
 StreamSelector *selector;
 
 void setup()
@@ -32,10 +36,11 @@ void setup()
 
   Serial.println("\n\nAdafruit VS1053 Feather WiFi Radio");
 
-  selector = new StreamSelector(0, 2);
+  selector = new StreamSelector(0, 3);
 
   selector->AddStream(radioStream1, 0);
   selector->AddStream(radioStream2, 1);
+  selector->AddStream(radioStream3, 2);
 
   Serial.println("setting on off switch");
   //set on-off switch pin mode

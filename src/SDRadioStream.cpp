@@ -20,9 +20,7 @@ uint8_t SDRadioStream::begin(void)
 
     if (initialized == 0)
     {
-        Serial.println(F("sound output initialized"));
-        musicPlayer->sineTest(0x44, 500); // Make a tone to indicate it's working
-
+        
         // Set volume for left, right channels. lower numbers == louder volume!
         musicPlayer->setVolume(DEFAULTVOL, DEFAULTVOL);
     }
