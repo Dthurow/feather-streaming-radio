@@ -78,11 +78,16 @@ uint8_t InternetRadioStream::setupWifi()
         Serial.print("Connecting to SSID ");
         Serial.println(ssid);
         WiFi.begin(ssid, password);
-
-        while (WiFi.status() != WL_CONNECTED)
+        int waitTime = 15;
+        while (waitTime > 0 && WiFi.status() != WL_CONNECTED)
         {
             delay(500);
             Serial.print(".");
+            waitTime--;
+        }
+        if (waitTime <= 0){
+            Serial.println("Timeout on connecting to wifi");
+            return false;
         }
 
         Serial.println("WiFi connected");

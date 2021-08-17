@@ -27,11 +27,44 @@ This is future functionality right now. The eventual plan is to let you set an R
 I'm using an [adafruit Huzzah with ESP8266](https://www.adafruit.com/product/2821) as my main brains. It has built-in wifi support and seems smart enough for my needs. To play the music, I'm using the [adafruit music maker featherwing](https://www.adafruit.com/product/3436) which uses the VS1053B codec chip, allowing it to support Ogg Vorbis, MP3/MP2/MP1, MP4, AAC, WMA, FLAC, WAV/PCM, and MIDI formats, plus it has a built in microSD card slot, which I'm using for that radio station option above. The sound comes from two [3W 4 Ohm mono speakers](https://www.adafruit.com/product/4445).
 
 ### temporary hardware
-Right now I'm using a [10K linear pot](https://www.adafruit.com/product/562) from adafruit for the volume control, and a single [momentary switch button](https://www.adafruit.com/product/1119) for switching between stations. Eventually this will be replaced with rotary encoders for both. 
+Right now I'm using a [10K linear pot](https://www.adafruit.com/product/562) from adafruit with a 22K resistor for the volume control, and a single [momentary switch button](https://www.adafruit.com/product/1119) for switching between stations. Eventually this will be replaced with rotary encoders for both. 
 
 ## Config file - (Future)
 Eventually, I plan on having a simple configuration file on the microSD card that the feather will read on start up, which is where you'll put the list of "radio stations" and where to find them. 
 
 # How to get started
 
-TODO, sorry!
+Current hardware wiring schematic is in the docs folder, I wired it up using a breadboard.
+
+![Schematics.png](docs/Schematics.png)
+
+You can update the `VOLUME_KNOB` definition or the `CYCLE_THRU_STREAMS_BUTTON` definition in the code if you want to connect either to a different pin on the feather, but this setup will work with the code as is. 
+
+## Adding your own streams
+Once connected, update the code in `internet_streaming.cpp` file to add your streams. First section you modify starts with `/*-----UPDATE STREAM LIST AND LENGTH HERE----*/`. Here you add new internet streaming radio URLs. You can see the format from the example ones, pass in host and path separately. Make sure to update the `StreamLength` to the new number of total streams.
+
+If you're adding folders from your microSD card, add `SDRadioStream`s with the given directory. 
+
+>**NOTE** The MP3 files you add *MUST* have short names that follow the 8.3 format! AKA give them all names with 8 or fewer characters, such as "TRACK001.mp3". Otherwise the code will not see the files and you'll be frustated.
+
+After you do that, and update `StreamLength`, go to the section that starts with `/* ADD NEW STREAMS HERE */`. There, add more lines to include the new streams you added. The second parameter is the order of the streams when you flip through the stations, so be sure to put them in the order you want. 
+
+## Setting up WIFI
+You add your wifi by going to the `internetRadioStream.h` file and adding your SSID and password in the private variables named `ssid` and `password`
+
+## Copying Code to the Feather
+
+Now that the code is sorted, you need to get the code onto the feather. For this, you must have it setup to support Arduino. Adafruit has a [tutorial](https://learn.adafruit.com/adafruit-feather-huzzah-esp8266/using-arduino-ide) that explains how to do that. Make sure to install the ESP8266 library and get blinky running on it.
+
+After that, add the Adafruit_VS1053 library, SD library, and ESP8266WiFi to the Arduino IDE. 
+
+I don't use the Arduino IDE (because I deeply dislike it). Instead I use Visual Studio Code. So I use make files instead of the default Arduino IDE verify/upload buttons. I installed the `makeESPArduino` makefile from here: [https://github.com/plerup/makeEspArduino](https://github.com/plerup/makeEspArduino) by following the simple install:
+
+    cd ~
+    git clone https://github.com/plerup/makeEspArduino.git
+
+Once that's done, go into the new `makeESPArduino` folder, and run `make -f makeEspArduino.mk DEMO=1 flash` to test the make file is setup correctly. The demo it defaulted to was a wifi scanning script for me, and you can look at it on serial monitor in the Arduino IDE or using the `screen` command: `screen /dev/ttyUSB0 115200` (`ctrl+a` followed by `k` will kill a screen session)
+
+*Finally* you can go to the root of this git repo, and simply type `make run`, which will build the code, flash it onto the Huzzah, and start a miniterm serial monitor (exit that with `ctrl+]`)
+
+Yes, it's pretty complicated, I'll be working on improving the process.

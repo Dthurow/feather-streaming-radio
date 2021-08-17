@@ -7,26 +7,25 @@
 #include "StreamSelector.h"
 #define DEFAULTVOL 30
 
-char *ssid = "";
-const char *password = "";
 
-// http://ice6.somafm.com/groovesalad-128-mp3
-//http://ice2.somafm.com/seventies-128-mp3
-char *host = "ice6.somafm.com";
-char *path = "/groovesalad-128-mp3";
-int httpPort = 80;
 
 #define VOLUME_KNOB A0
 #define CYCLE_THRU_STREAMS_BUTTON 4
 
 int lastvol = DEFAULTVOL;
 
-int StreamLength = 4;
 SoundOutput sound = SoundOutput();
-RadioStreamInterface *radioStream1 = new InternetRadioStream(host, path, &sound);
+
+/*-----UPDATE STREAM LIST AND LENGTH HERE----*/
+int StreamLength = 4;
+// http://ice6.somafm.com/groovesalad-128-mp3
+//http://ice2.somafm.com/seventies-128-mp3
+RadioStreamInterface *radioStream1 = new InternetRadioStream("ice6.somafm.com", "/groovesalad-128-mp3", &sound);
 RadioStreamInterface *radioStream2 = new SDRadioStream(&sound, "/myradio");
 RadioStreamInterface *radioStream3 = new InternetRadioStream("ice2.somafm.com", "/seventies-128-mp3", &sound);
 RadioStreamInterface *radioStream4 = new SDRadioStream(&sound, "/anotherradio");
+
+/* ------------------------------------------*/
 
 StreamSelector *selector;
 
@@ -38,10 +37,12 @@ void setup()
 
   selector = new StreamSelector(0, StreamLength);
 
+  /* ADD NEW STREAMS HERE */
   selector->AddStream(radioStream1, 0);
   selector->AddStream(radioStream2, 1);
   selector->AddStream(radioStream3, 2);
   selector->AddStream(radioStream4, 3);
+  /*---------------------*/
 
   Serial.println("setting on off switch");
   //set on-off switch pin mode
