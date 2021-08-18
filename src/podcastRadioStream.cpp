@@ -1,14 +1,15 @@
-#include "internetRadioStream.h"
+#include "podcastRadioStream.h"
+#include "rssReader.h"
 #define DEFAULTVOL 30
 
-InternetRadioStream::InternetRadioStream(char *streamHost, char *streamPath, SoundOutputInterface *sound)
+PodcastRadioStream::PodcastRadioStream(char *streamHost, char *streamPath, SoundOutputInterface *sound)
 {
     musicPlayer = sound;
     host = streamHost;
     path = streamPath;
 }
 
-uint8_t InternetRadioStream::begin(void)
+uint8_t PodcastRadioStream::begin(void)
 {
 
     if (!musicPlayer->begin())
@@ -32,45 +33,31 @@ uint8_t InternetRadioStream::begin(void)
         return false;
     }
 
+    //TODO process RSS feed until I find the first episode to play
+    RSSReader reader = RSSReader(&feedClient);
+
     
     return true;
 }
 
-uint8_t InternetRadioStream::end(void)
+uint8_t PodcastRadioStream::end(void)
 {
-    Serial.println("Called end");
-    client.stop();
-    return true;
+    //TODO implement me!
+    return false;
 }
 
-void InternetRadioStream::playRadio(void)
+void PodcastRadioStream::playRadio(void)
 {
-    if (musicPlayer->readyForData())
-    {
-        
-        //wants more data! check we have something available from the stream
-        if (client.available() > 0)
-        {
-            // yea! read up to 32 bytes
-            uint8_t bytesread = client.read(mp3buff, 32);
-            // if (bytesread < 32)
-            // {
-            //     Serial.print("read byes: ");
-            //     Serial.println(bytesread);
-            // }
-
-            // push to mp3
-            musicPlayer->playData(mp3buff, bytesread);
-        }
-    }
+   
+    //TODO implement me
 }
 
-void InternetRadioStream::setVolume(uint8_t left, uint8_t right)
+void PodcastRadioStream::setVolume(uint8_t left, uint8_t right)
 {
     musicPlayer->setVolume(left, right);
 }
 
-uint8_t InternetRadioStream::setupWifi()
+uint8_t PodcastRadioStream::setupWifi()
 {
     //TODO need to abstract this out for internetradio and podcasts
     //also so if the WIFI is bad I don't retry every single time
@@ -100,12 +87,12 @@ uint8_t InternetRadioStream::setupWifi()
     }
 
     /************************* INITIALIZE STREAM */
-    if (client.available() <= 0 || !client.connected())
+    if (feedClient.available() <= 0 || !feedClient.connected())
     {
         Serial.print("connecting to ");
         Serial.println(host);
 
-        if (!client.connect(host, httpPort))
+        if (!feedClient.connect(host, httpPort))
         {
             Serial.println("Connection failed");
             return false;
@@ -116,9 +103,12 @@ uint8_t InternetRadioStream::setupWifi()
         Serial.println(path);
 
         // This will send the request to the server
-        client.print(String("GET ") + path + " HTTP/1.1\r\n" +
+        feedClient.print(String("GET ") + path + " HTTP/1.1\r\n" +
                      "Host: " + host + "\r\n" +
                      "Connection: close\r\n\r\n");
+
+                            
     }
-    return true;
+
+   return false;
 }
