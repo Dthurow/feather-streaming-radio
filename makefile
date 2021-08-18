@@ -4,7 +4,7 @@ BUILD_DIR = $(DIR)/build
 BOARD = huzzah
 LIBS = $(HOME)/.arduino15/packages/esp8266/hardware/esp8266/2.7.4/libraries $(HOME)/Arduino/libraries 
 EXCLUDE_DIRS = test
-include $(HOME)/makeEspArduino/makeEspArduino.mk
+include $(DIR)/makeEspArduino/makeEspArduino.mk
 
 
 TARGET_EXTENSION=.out
