@@ -34,6 +34,8 @@ Eventually, I plan on having a simple configuration file on the microSD card tha
 
 # How to get started
 
+Download this code using `git clone --recurse-submodules`, so it includes the `makeEspArduino` repo as well. If you forget (or don't get to this bit till after you downloaded it), you can manually add the submodules by typing `git submodule update --init --recursive` in your already existing local repo.
+
 Current hardware wiring schematic is in the docs folder, I wired it up using a breadboard.
 
 ![Schematics.png](docs/Schematics.png)
@@ -52,19 +54,35 @@ After you do that, and update `StreamLength`, go to the section that starts with
 ## Setting up WIFI
 You add your wifi by going to the `internetRadioStream.h` file and adding your SSID and password in the private variables named `ssid` and `password`
 
-## Copying Code to the Feather
+## Copying Code to the Feather Huzzah
 
-Now that the code is sorted, you need to get the code onto the feather. For this, you must have it setup to support Arduino. Adafruit has a [tutorial](https://learn.adafruit.com/adafruit-feather-huzzah-esp8266/using-arduino-ide) that explains how to do that. Make sure to install the ESP8266 library and get blinky running on it.
+Now that the code is sorted, you need to get the code onto the feather. For this, you must have the feather setup to support Arduino. Adafruit has a [tutorial](https://learn.adafruit.com/adafruit-feather-huzzah-esp8266/using-arduino-ide) that explains how to do that. Make sure to install the ESP8266 library and get blinky running on the feather before moving on.
 
 After that, add the Adafruit_VS1053 library, SD library, and ESP8266WiFi to the Arduino IDE. 
 
-I don't use the Arduino IDE (because I deeply dislike it). Instead I use Visual Studio Code. So I use make files instead of the default Arduino IDE verify/upload buttons. I installed the `makeESPArduino` makefile from here: [https://github.com/plerup/makeEspArduino](https://github.com/plerup/makeEspArduino) by following the simple install:
 
-    cd ~
-    git clone https://github.com/plerup/makeEspArduino.git
+>I don't use the Arduino IDE (because I deeply dislike it). Instead I use Visual Studio Code. So I use make files instead of the default Arduino IDE verify/upload buttons. I use a slightly tweaked makefile from >[https://github.com/plerup/makeEspArduino](https://github.com/plerup/makeEspArduino), I forked it and have it at [https://github.com/dthurow/makeEspArduino](https://github.com/dthurow/makeEspArduino). I had to do this so when I have separate header files for testing that are removed at preprocessing time, the makeEspArduino code wouldn't try to build the testWifi.h file as part of the build for the radio. Example:
+>
+>>#ifdef TEST
+>>
+>>#include "../test/testWifi.h"
+>>
+>>#else
+>>
+>>#include "ESP8266WiFi.h"
+>>
+>>#endif
 
-Once that's done, go into the new `makeESPArduino` folder, and run `make -f makeEspArduino.mk DEMO=1 flash` to test the make file is setup correctly. The demo it defaulted to was a wifi scanning script for me, and you can look at it on serial monitor in the Arduino IDE or using the `screen` command: `screen /dev/ttyUSB0 115200` (`ctrl+a` followed by `k` will kill a screen session)
 
-*Finally* you can go to the root of this git repo, and simply type `make run`, which will build the code, flash it onto the Huzzah, and start a miniterm serial monitor (exit that with `ctrl+]`)
+Once the libraries are added, go into the new `makeESPArduino` folder in the terminal, and run `make -f makeEspArduino.mk DEMO=1 flash` to test the make file is setup correctly. The demo it defaulted to was a wifi scanning script for me, and you can look at it on serial monitor in the Arduino IDE or using the `screen` command: `screen /dev/ttyUSB0 115200` (`ctrl+a` followed by `k` will kill a screen session)
+
+*Finally* you can go to the root of this git repo, and simply type `make run` in the terminal, which will build the code, flash it onto the Huzzah, and start a miniterm serial monitor (exit that with `ctrl+]`)
 
 Yes, it's pretty complicated, I'll be working on improving the process.
+
+## Tests
+The tests are designed to run on your computer, not the hardware. There's several stubs I've made (`testWifi.h` and `testSerial.h` for example) that let you test the arduino code w/o running on the hardware itself. I'll keep expanding out my stubs as I go. 
+
+To run the tests, simply do `make test`, and it will run the Unity framework and the tests in the `/test` folder. For more info about Unity, see [http://www.throwtheswitch.org/](http://www.throwtheswitch.org/)
+
+The makefile's test target defines a `TEST` variable, so you can add preprocessor changes to the code when needed for testing (E.g. `#ifdef TEST`).
