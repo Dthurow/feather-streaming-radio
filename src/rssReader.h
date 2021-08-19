@@ -16,6 +16,7 @@ public:
 
     char * getNextEpisode();
     uint8_t goToThisText(const char *text);
+    uint8_t readUntil(char * buffer, int length, char delim);
 
     private:
         WiFiClient *feed;
