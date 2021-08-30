@@ -27,7 +27,7 @@ This is future functionality right now. The eventual plan is to let you set an R
 I'm using an [adafruit Huzzah with ESP8266](https://www.adafruit.com/product/2821) as my main brains. It has built-in wifi support and seems smart enough for my needs. To play the music, I'm using the [adafruit music maker featherwing](https://www.adafruit.com/product/3436) which uses the VS1053B codec chip, allowing it to support Ogg Vorbis, MP3/MP2/MP1, MP4, AAC, WMA, FLAC, WAV/PCM, and MIDI formats, plus it has a built in microSD card slot, which I'm using for that radio station option above. The sound comes from two [3W 4 Ohm mono speakers](https://www.adafruit.com/product/4445).
 
 ### temporary hardware
-Right now I'm using a [10K linear pot](https://www.adafruit.com/product/562) from adafruit with a 22K resistor for the volume control, and a single [momentary switch button](https://www.adafruit.com/product/1119) for switching between stations. Eventually this will be replaced with rotary encoders for both. 
+Right now I'm using a [10K linear pot](https://www.adafruit.com/product/562) from adafruit with a 22K resistor for the volume control, and a single [rotary encoder](https://www.adafruit.com/product/377) for switching between stations.
 
 ## Config file - (Future)
 Eventually, I plan on having a simple configuration file on the microSD card that the feather will read on start up, which is where you'll put the list of "radio stations" and where to find them. 
@@ -40,7 +40,7 @@ Current hardware wiring schematic is in the docs folder, I wired it up using a b
 
 ![Schematics.png](docs/Schematics.png)
 
-You can update the `VOLUME_KNOB` definition or the `CYCLE_THRU_STREAMS_BUTTON` definition in the code if you want to connect either to a different pin on the feather, but this setup will work with the code as is. 
+You can update the `VOLUME_KNOB` definition or the `ROTARY_ENCODER_CHANNEL_A` and `ROTARY_ENCODER_CHANNEL_B` definition in the code if you want to connect either to a different pin on the feather, but this setup will work with the code as is. 
 
 ## Adding your own streams
 Once connected, update the code in `internet_streaming.cpp` file to add your streams. First section you modify starts with `/*-----UPDATE STREAM LIST AND LENGTH HERE----*/`. Here you add new internet streaming radio URLs. You can see the format from the example ones, pass in host and path separately. Make sure to update the `StreamLength` to the new number of total streams.

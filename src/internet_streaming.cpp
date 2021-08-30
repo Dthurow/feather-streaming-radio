@@ -5,12 +5,12 @@
 #include "internetRadioStream.h"
 #include "SDRadioStream.h"
 #include "StreamSelector.h"
+#include "rotaryEncoder.h"
 #define DEFAULTVOL 30
 
-
-
 #define VOLUME_KNOB A0
-#define CYCLE_THRU_STREAMS_BUTTON 4
+#define ROTARY_ENCODER_CHANNEL_A 4
+#define ROTARY_ENCODER_CHANNEL_B 5
 
 int lastvol = DEFAULTVOL;
 
@@ -28,6 +28,7 @@ RadioStreamInterface *radioStream4 = new SDRadioStream(&sound, "/anotherradio");
 /* ------------------------------------------*/
 
 StreamSelector *selector;
+RotaryEncoder *rotary;
 
 void setup()
 {
@@ -44,44 +45,18 @@ void setup()
   selector->AddStream(radioStream4, 3);
   /*---------------------*/
 
-  Serial.println("setting on off switch");
-  //set on-off switch pin mode
-  // don't use an IRQ, we'll hand-feed
-  pinMode(CYCLE_THRU_STREAMS_BUTTON, INPUT_PULLUP);
+  Serial.println("Setting up rotary encoder");
+  rotary = new RotaryEncoder(ROTARY_ENCODER_CHANNEL_A, ROTARY_ENCODER_CHANNEL_B);
+  rotary->initialize();
 }
 
 int loopcounter = 0;
-int buttonHasLifted = 1;
 int running = 0;
-
-//return 1 if the button has been pressed, 0 otherwise
-//function limits so it only returns 1 once per button press
-//so polling works
-int buttonPressed()
-{
-  int rawVal = digitalRead(CYCLE_THRU_STREAMS_BUTTON);
-
-  if (rawVal)
-  {
-    //button is not pressed
-    buttonHasLifted = 1;
-  }
-  else
-  {
-    //button is pressed
-    if (buttonHasLifted)
-    {
-      buttonHasLifted = 0; //don't return 1 again until the button has been lifted
-      return 1;
-    }
-  }
-
-  return 0;
-}
 
 void loop()
 {
-  if (buttonPressed())
+  int rotVal = rotary->checkSelection();
+  if (rotVal)
   {
     //cycle through streams with button press
 
@@ -91,8 +66,15 @@ void loop()
     //until one succeeds
     do
     {
-
-      running = (running + 1) % StreamLength;
+      if (rotVal == 1)
+      {
+        running = (running + 1) % StreamLength;
+      }
+      else if (rotVal == -1)
+      {
+        //decrement, but loop around if reach start
+        running = (running - 1 < 0) ? StreamLength - 1 : running - 1;
+      }
 
       Serial.print("Trying to initialize stream ");
       Serial.println(running);
