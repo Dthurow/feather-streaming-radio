@@ -58,7 +58,7 @@ void loop()
   int rotVal = rotary->checkSelection();
   if (rotVal)
   {
-    //cycle through streams with button press
+    //cycle through streams
 
     bool successfulUpdate = false;
     //try to initialize the new stream

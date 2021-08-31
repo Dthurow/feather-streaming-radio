@@ -8,16 +8,33 @@ RSSReader::RSSReader(WiFiClient *client)
     feed = client;
 }
 
-char *RSSReader::getNextEpisode()
+uint8_t RSSReader::getNextEpisode(char *urlBuffer, int length)
 {
+    //read through the feed until get to a item
+    if (goToThisText("<item>"))
+    {
+        //read through the feed until get to an enclosure
+        if (goToThisText("<enclosure"))
+        {
+            //read through the feed until get to the URL in the enclosure
+            if (goToThisText("url=\""))
+            {
+                //read the URL
+                //return the URL
+                return readUntil(urlBuffer, length, '"');
+            }
+        }
+    }
+    return false;
 }
 
 //fills buffer with data from feed until it reaches the delimiter char
+//or the end of the feed, whatever comes first
 uint8_t RSSReader::readUntil(char *buffer, int length, char delim)
 {
     int insertIndex = 0;
     int headerIndex = 0;
-    char circularBuffer[length+1];
+    char circularBuffer[length + 1];
 
     char c = feed->read();
     while (c != -1 && c != delim)
@@ -31,15 +48,23 @@ uint8_t RSSReader::readUntil(char *buffer, int length, char delim)
         //leaving one char for null byte
         insertIndex++;
         insertIndex %= length;
-        if (insertIndex == headerIndex){
-            
+        if (insertIndex == headerIndex)
+        {
+
             headerIndex++;
             headerIndex %= length;
             //Serial.print("updated header index to ");Serial.println(headerIndex);
-            
         }
         c = feed->read();
     }
+
+    if (c == -1){
+        //the feed ended before I found my delim
+        //set the buffer to empty and return false
+        buffer[0] = '\0';
+        return false;
+    }
+
     // Serial.print("setting ");
     // Serial.print(insertIndex);
     // Serial.print(" to null");
@@ -47,7 +72,8 @@ uint8_t RSSReader::readUntil(char *buffer, int length, char delim)
 
     int cirIndex = headerIndex;
     int index = 0;
-    while (circularBuffer[cirIndex] != '\0'){
+    while (circularBuffer[cirIndex] != '\0')
+    {
         // Serial.print("setting ");
         // Serial.print(index);
         // Serial.print(" to ");
@@ -62,7 +88,6 @@ uint8_t RSSReader::readUntil(char *buffer, int length, char delim)
     // Serial.print(index);
     // Serial.print(" to null");
     buffer[index] = '\0'; //null terminate
-
 
     return true;
 }

@@ -14,7 +14,7 @@ class RSSReader
 public:
     RSSReader(WiFiClient *client);
 
-    char * getNextEpisode();
+    uint8_t getNextEpisode(char *urlBuffer, int length);
     uint8_t goToThisText(const char *text);
     uint8_t readUntil(char * buffer, int length, char delim);
 
