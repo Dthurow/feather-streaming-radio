@@ -1,6 +1,9 @@
+#ifndef PODCASTRADIOSTREAM_h
+#define PODCASTRADIOSTREAM_h
 #include "../inc/RadioStreamInterface.h"
 #include "../inc/SoundOutputInterface.h"
 #include <ESP8266WiFi.h>
+#define EPISODE_URL_LENGTH 350
 
 class PodcastRadioStream : public RadioStreamInterface
 {
@@ -30,17 +33,21 @@ public:
 
 private:
     uint8_t setupWifi();
+
     int initialized = 0;
     SoundOutputInterface *musicPlayer;
     char *ssid = "";
     char *password = "";
     char *host;
     char *path;
+    char currentEpisodeURL[EPISODE_URL_LENGTH];
 
     const int httpPort = 80;
+    const int httpsPort = 443;
     // Use WiFiClient class to create HTTP/TCP connection
-    WiFiClient feedClient;
-    WiFiClient episodeClient;
+    WiFiClientSecure feedClient;
+    WiFiClientSecure episodeClient;
     // our little buffer of mp3 data
     uint8_t mp3buff[32]; // vs1053 likes 32 bytes at a time
 };
+#endif

@@ -1,6 +1,9 @@
 #include "podcastRadioStream.h"
 #include "rssReader.h"
 #define DEFAULTVOL 30
+#ifdef TEST
+testSerial Serial = testSerial();
+#endif
 
 PodcastRadioStream::PodcastRadioStream(char *streamHost, char *streamPath, SoundOutputInterface *sound)
 {
@@ -20,7 +23,7 @@ uint8_t PodcastRadioStream::begin(void)
 
     if (initialized == 0)
     {
-        
+
         // Set volume for left, right channels. lower numbers == louder volume!
         musicPlayer->setVolume(DEFAULTVOL, DEFAULTVOL);
         initialized = 1;
@@ -34,9 +37,24 @@ uint8_t PodcastRadioStream::begin(void)
     }
 
     //TODO process RSS feed until I find the first episode to play
+    Serial.println("Setting up RSSreader");
     RSSReader reader = RSSReader(&feedClient);
 
-    
+    Serial.println("Finding episode");
+    if (reader.getNextEpisode(currentEpisodeURL, EPISODE_URL_LENGTH))
+    {
+        Serial.print("Found episode URL: ");
+        Serial.println(currentEpisodeURL);
+
+
+
+    }
+    else
+    {
+        Serial.println("Could not get next episode");
+        return false;
+    }
+
     return true;
 }
 
@@ -48,7 +66,7 @@ uint8_t PodcastRadioStream::end(void)
 
 void PodcastRadioStream::playRadio(void)
 {
-   
+
     //TODO implement me
 }
 
@@ -61,7 +79,7 @@ uint8_t PodcastRadioStream::setupWifi()
 {
     //TODO need to abstract this out for internetradio and podcasts
     //also so if the WIFI is bad I don't retry every single time
-    
+
     //check if need to setup wifi
     wl_status_t curStat = WiFi.status();
     if (curStat != WL_CONNECTED && curStat != WL_IDLE_STATUS)
@@ -76,7 +94,8 @@ uint8_t PodcastRadioStream::setupWifi()
             Serial.print(".");
             waitTime--;
         }
-        if (waitTime <= 0){
+        if (waitTime <= 0)
+        {
             Serial.println("Timeout on connecting to wifi");
             return false;
         }
@@ -91,8 +110,8 @@ uint8_t PodcastRadioStream::setupWifi()
     {
         Serial.print("connecting to ");
         Serial.println(host);
-
-        if (!feedClient.connect(host, httpPort))
+        feedClient.setInsecure();
+        if (!feedClient.connect(host, httpsPort))
         {
             Serial.println("Connection failed");
             return false;
@@ -104,11 +123,9 @@ uint8_t PodcastRadioStream::setupWifi()
 
         // This will send the request to the server
         feedClient.print(String("GET ") + path + " HTTP/1.1\r\n" +
-                     "Host: " + host + "\r\n" +
-                     "Connection: close\r\n\r\n");
-
-                            
+                         "Host: " + host + "\r\n" +
+                         "Connection: close\r\n\r\n");
     }
 
-   return false;
+    return true;
 }

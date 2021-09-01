@@ -7,7 +7,11 @@ EXCLUDE_DIRS = test
 include $(DIR)/makeEspArduino/makeEspArduino.mk
 
 
+#Tool Definitions
+CC=g++
+CFLAGS=-I. -I$(PATHU) -I$(PATHI) -I$(PATHS) -I$(PATHT)/fakes -I$(PATHT)/header_overrides -DTEST
 TARGET_EXTENSION=.out
+
 #Path Definitions
 PATHU = test/unity/
 PATHS = src/
@@ -15,45 +19,73 @@ PATHT = test/
 PATHI = inc/
 PATHB = build/
 
-#determine our source files
-SRCU = $(PATHU)unity.c
-SRCS = $(PATHS)rssReader.cpp
-SRCT = $(wildcard $(PATHT)*.cpp)
-SRC = $(SRCU) $(SRCS) $(SRCT)
+#determine all our source files
+SRCUNITY = $(PATHU)unity.c
+#testable source files here
+SRCSRC = $(PATHS)rssReader.cpp
+SRCTEST = $(wildcard $(PATHT)*.cpp)
+SRCTESTSUPPORTERS =  $(wildcard $(PATHT)fakes/*.cpp)
 
-#Files We Are To Work With
-OBJU = $(patsubst $(PATHU)%.c,$(PATHB)%.o,$(SRCU))
-OBJS = $(patsubst $(PATHS)%.cpp,$(PATHB)%.o,$(SRCS))
-OBJT = $(patsubst $(PATHT)%.cpp,$(PATHB)%.o,$(SRCT))
-OBJ = $(OBJU) $(OBJS) $(OBJT)
+
+OBJUNITY = $(patsubst $(PATHU)%.c,$(PATHB)%.o,$(SRCUNITY))
+OBJSRC = $(patsubst $(PATHS)%.cpp,$(PATHB)%.o,$(SRCSRC))
+OBJTESTSUPPORTERS = $(patsubst $(PATHT)%.cpp,$(PATHB)%.o,$(SRCTESTSUPPORTERS))
+ALLTESTSUPPORTINGOBJ = $(OBJUNITY) $(OBJSRC) $(OBJTESTSUPPORTERS)
+OBJTESTS = $(patsubst $(PATHT)%.cpp,$(PATHB)%.o,$(SRCTEST))
 
 #Other files we care about
-DEP = $(PATHU)unity.h $(PATHU)unity_internals.h
-TGT = $(PATHB)test$(TARGET_EXTENSION)
+DEP = $(PATHU)unity.h $(PATHU)unity_internals.h 
+TARGETS = $(patsubst $(PATHT)%.cpp,$(PATHB)%$(TARGET_EXTENSION),$(SRCTEST))
 
-#Tool Definitions
-CC=g++
-CFLAGS=-I. -I$(PATHU) -I$(PATHI) -I$(PATHS) -DTEST
 
-test: $(PATHB) $(TGT)
-	echo "running tests"
-	./$(TGT)
+test: $(PATHB) $(PATHB)fakes $(TARGETS)
+	echo $(TARGETS)
+	echo "made tests"
+	for i in $(TARGETS); do \
+            $$i; \
+        done
+
+#make sure directory exists
+$(PATHB):
+	 mkdir -p $(PATHB)
+
+#make sure directory exists
+$(PATHB)fakes:
+	mkdir -p $(PATHB)fakes
+
+$(TARGETS): $(OBJTESTS) $(ALLTESTSUPPORTINGOBJ)
+	echo "linking for $@"
+	$(CC) -o $@ $(patsubst $(PATHB)%.out,$(PATHB)%.o,$@) $(ALLTESTSUPPORTINGOBJ)
 
 $(PATHB)%.o:: $(PATHS)%.cpp $(DEP)
-	echo "source compiling"
+	echo "compiling $@ with $<"
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(PATHB)%.o:: $(PATHT)%.cpp $(DEP)
-	echo "tests compiling"
+	echo "compiling $@ with $<"
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(PATHB)%.o:: $(PATHU)%.c $(DEP)
 	echo "unity compiling"
 	$(CC) -c $(CFLAGS) $< -o $@
 
-$(TGT): $(OBJ)
-	echo "linking"
-	$(CC) -o $@ $^
 
 .PHONY: test
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
 

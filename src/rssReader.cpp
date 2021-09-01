@@ -13,12 +13,15 @@ uint8_t RSSReader::getNextEpisode(char *urlBuffer, int length)
     //read through the feed until get to a item
     if (goToThisText("<item>"))
     {
+        //Serial.println("Found item");
         //read through the feed until get to an enclosure
         if (goToThisText("<enclosure"))
         {
+            //Serial.println("Found enclosure");
             //read through the feed until get to the URL in the enclosure
             if (goToThisText("url=\""))
             {
+                //Serial.println("Found URL");
                 //read the URL
                 //return the URL
                 return readUntil(urlBuffer, length, '"');
@@ -58,7 +61,8 @@ uint8_t RSSReader::readUntil(char *buffer, int length, char delim)
         c = feed->read();
     }
 
-    if (c == -1){
+    if (c == -1)
+    {
         //the feed ended before I found my delim
         //set the buffer to empty and return false
         buffer[0] = '\0';
@@ -100,21 +104,31 @@ uint8_t RSSReader::goToThisText(const char *text)
     while (text[matchIndex] != '\0')
     {
         char c = feed->read();
+        //Serial.print(c);
+        //if (c < 0x20 || c > 0x7E)
         if (c == -1)
         {
+            //non printable characters
             //Serial.println("No more to read");
             return false;
         }
         if (text[matchIndex] == c)
         {
-            //Serial.println("Found match, incrementing");
+            // if (matchIndex > 1)
+            // {
+            //     Serial.println("Found match, incrementing");
+            // }
             matchIndex++;
         }
         else
         {
-            //Serial.print("Got to ");
-            //Serial.print(matchIndex);
-            //Serial.println(" but found mismatch, resetting");
+            // if (matchIndex > 1)
+            // {
+            //     Serial.print("Got to ");
+            //     Serial.print(matchIndex);
+            //     Serial.println(" but found mismatch, resetting");
+            // }
+
             matchIndex = 0;
         }
     }

@@ -1,7 +1,7 @@
 
 #include "./unity/unity.h"
 #include "../src/rssReader.h"
-#include "testWifi.h"
+#include "./fakes/testWifi.h"
 #include "testRSSReader.h"
 
 void setUp(void)

@@ -4,6 +4,7 @@
 #include "SoundOutput.h"
 #include "internetRadioStream.h"
 #include "SDRadioStream.h"
+#include "podcastRadioStream.h"
 #include "StreamSelector.h"
 #include "rotaryEncoder.h"
 #define DEFAULTVOL 30
@@ -17,13 +18,14 @@ int lastvol = DEFAULTVOL;
 SoundOutput sound = SoundOutput();
 
 /*-----UPDATE STREAM LIST AND LENGTH HERE----*/
-int StreamLength = 4;
+int StreamLength = 5;
 // http://ice6.somafm.com/groovesalad-128-mp3
 //http://ice2.somafm.com/seventies-128-mp3
 RadioStreamInterface *radioStream1 = new InternetRadioStream("ice6.somafm.com", "/groovesalad-128-mp3", &sound);
 RadioStreamInterface *radioStream2 = new SDRadioStream(&sound, "/myradio");
 RadioStreamInterface *radioStream3 = new InternetRadioStream("ice2.somafm.com", "/seventies-128-mp3", &sound);
 RadioStreamInterface *radioStream4 = new SDRadioStream(&sound, "/anotherradio");
+RadioStreamInterface *radioStream5 = new PodcastRadioStream("feeds.99percentinvisible.org", "/99percentinvisible", &sound);
 
 /* ------------------------------------------*/
 
@@ -43,6 +45,7 @@ void setup()
   selector->AddStream(radioStream2, 1);
   selector->AddStream(radioStream3, 2);
   selector->AddStream(radioStream4, 3);
+  selector->AddStream(radioStream5, 4);
   /*---------------------*/
 
   Serial.println("Setting up rotary encoder");
