@@ -24,7 +24,7 @@ SRCUNITY = $(PATHU)unity.c
 #testable source files here
 SRCSRC = $(PATHS)rssReader.cpp
 SRCTEST = $(wildcard $(PATHT)*.cpp)
-SRCTESTSUPPORTERS =  $(wildcard $(PATHT)fakes/*.cpp)
+SRCTESTSUPPORTERS =  $(wildcard $(PATHT)fakes/*.cpp) $(wildcard $(PATHT)header_overrides/*.cpp)
 
 
 OBJUNITY = $(patsubst $(PATHU)%.c,$(PATHB)%.o,$(SRCUNITY))
@@ -38,7 +38,7 @@ DEP = $(PATHU)unity.h $(PATHU)unity_internals.h
 TARGETS = $(patsubst $(PATHT)%.cpp,$(PATHB)%$(TARGET_EXTENSION),$(SRCTEST))
 
 
-test: $(PATHB) $(PATHB)fakes $(TARGETS)
+test: $(PATHB) $(PATHB)fakes $(PATHB)header_overrides $(TARGETS)
 	echo $(TARGETS)
 	echo "made tests"
 	for i in $(TARGETS); do \
@@ -53,9 +53,13 @@ $(PATHB):
 $(PATHB)fakes:
 	mkdir -p $(PATHB)fakes
 
+$(PATHB)header_overrides:
+	mkdir -p $(PATHB)header_overrides
+
 $(TARGETS): $(OBJTESTS) $(ALLTESTSUPPORTINGOBJ)
 	echo "linking for $@"
 	$(CC) -o $@ $(patsubst $(PATHB)%.out,$(PATHB)%.o,$@) $(ALLTESTSUPPORTINGOBJ)
+	echo "done"
 
 $(PATHB)%.o:: $(PATHS)%.cpp $(DEP)
 	echo "compiling $@ with $<"
@@ -71,21 +75,3 @@ $(PATHB)%.o:: $(PATHU)%.c $(DEP)
 
 
 .PHONY: test
-
-
-
-
-
-
-
-	
-
-
-
-
-
-
-
-
-
-

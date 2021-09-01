@@ -2,11 +2,9 @@
 #define RSSREADER_h
 
 #ifdef TEST
-#include "../test/fakes/testWifi.h"
 #include "../test/fakes/testSerial.h"
-#else
-#include <ESP8266WiFi.h>
 #endif
+#include <ESP8266WiFi.h>
 #include <stdint.h>
 
 class RSSReader

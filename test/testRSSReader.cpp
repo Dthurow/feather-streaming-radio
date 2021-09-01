@@ -1,7 +1,7 @@
 
 #include "./unity/unity.h"
 #include "../src/rssReader.h"
-#include "./fakes/testWifi.h"
+#include "./header_overrides/ESP8266WiFi.h"
 #include "testRSSReader.h"
 
 void setUp(void)

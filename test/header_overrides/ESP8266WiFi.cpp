@@ -1,4 +1,5 @@
-#include "testWifi.h"
+#include "ESP8266WiFi.h"
+
 
 WiFiClient::WiFiClient(const char * text, int length){
     mytext = text;
